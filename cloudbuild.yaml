@@ -26,6 +26,7 @@ steps:
     id: Push
   # Set it up in Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    waitFor: ["Push"]
     args:
       - run
       - services
@@ -39,6 +40,7 @@ steps:
       - "--quiet"
     id: Deploy
     entrypoint: gcloud
+timeout: 1200s
 images:
   - "$_DEPLOY_REGION-docker.pkg.dev/$PROJECT_ID/$PROJECT_ID/$REPO_NAME:$SHORT_SHA"
 options:
