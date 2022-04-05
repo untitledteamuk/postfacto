@@ -21,6 +21,8 @@ steps:
     id: Push
     waitFor: ["Patch"]
     args:
+      - --dockerfile=src/Dockerfile
+      - --context=src/
       - --destination=$_DEPLOY_REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$SHORT_SHA
       - --destination=$_DEPLOY_REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:latest
       - --cache=true
