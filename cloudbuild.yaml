@@ -44,8 +44,6 @@ steps:
     id: Deploy
     entrypoint: gcloud
 timeout: 1200s
-images:
-  - "$_DEPLOY_REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$SHORT_SHA"
 options:
   substitutionOption: ALLOW_LOOSE
 substitutions:
