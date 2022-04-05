@@ -2,28 +2,29 @@
 steps:
   # Pull down submodules (aka source)
   - name: gcr.io/cloud-builders/git
-    id: submodules-init
+    id: Init
     args:
       - "submodule"
       - "update"
       - "--init"
       - "--recursive"
-  # Build the k8s Docker image
-  - name: "gcr.io/cloud-builders/docker"
-    id: build_docker_image
-    waitFor: ["submodules-init"]
-    dir: "src"
+  # Patch
+  - name: bash
+    id: Patch
+    waitFor: ["Init"]
     args:
-      - "build"
-      - "-t"
-      - "$_DEPLOY_REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$SHORT_SHA"
-      - "."
-  # Push the image
-  - name: gcr.io/cloud-builders/docker
-    args:
-      - push
-      - "$_DEPLOY_REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$SHORT_SHA"
+      - "cp"
+      - "actioncable.rb"
+      - "src/api/config/initializers/"
+  # Build the Docker image
+  - name: 'gcr.io/kaniko-project/executor:latest'
     id: Push
+    waitFor: ["Patch"]
+    args:
+      - --destination=$_DEPLOY_REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:$SHORT_SHA
+      - --destination=$_DEPLOY_REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$REPO_NAME:latest
+      - --cache=true
+      - --cache-ttl=48h
   # Set it up in Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
     waitFor: ["Push"]
